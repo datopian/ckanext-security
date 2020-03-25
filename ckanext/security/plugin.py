@@ -7,7 +7,7 @@ from ckanext.security import schema
 
 class CkanSecurityPlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IConfigurer)
-    plugins.implements(plugins.IRoutes)
+    #plugins.implements(plugins.IRoutes)
 
     def update_config(self, config):
         # Monkeypatching all user schemas in order to enforce a stronger password
