@@ -5,9 +5,9 @@ class RedisClient(object):
     prefix = ''
 
     def __init__(self):
-        host = config['ckanext.security.redis.host']
-        port = config['ckanext.security.redis.port']
-        db = config['ckanext.security.redis.db']
+        host = config.get('ckanext.security.redis.host', 'redis')
+        port = config.get('ckanext.security.redis.port', '6379')
+        db = config.get('ckanext.security.redis.db', '1')
         self.client = redis.StrictRedis(host=host, port=port, db=db)
 
     def get(self, key):
