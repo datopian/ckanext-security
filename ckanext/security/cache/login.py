@@ -12,8 +12,10 @@ log = logging.getLogger(__name__)
 
 
 class LoginThrottle(object):
-    login_lock_timeout = int(config.get('ckanext.security.lock_timeout', 60 * 15))
-    login_max_count = int(config.get('ckanext.security.login_max_count', 10))
+    # Login throttling lock period - 15 min
+    login_lock_timeout = int(config.get('ckanext.security.lock_timeout', 60 * 3))
+    # Login throttling attempt limit - 3 times
+    login_max_count = int(config.get('ckanext.security.login_max_count', 3))
     count = 0
 
     def __init__(self, user, remote_addr):
