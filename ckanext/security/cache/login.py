@@ -6,10 +6,42 @@ from ckan.common import config
 
 from ckanext.security.mailer import notify_lockout
 from ckanext.security.cache.clients import ThrottleClient
+from ckanext.security.cache.clients import AuthUserClient
 
 
 log = logging.getLogger(__name__)
 
+class ConcurrentLoginThrottel(object):
+    
+    def __init__(self, user,remote_addr):
+        self.request_time = time.time()
+        self.user = user
+        self.cli = AuthUserClient()
+        self.remote_addr = remote_addr
+        self.user_name = user
+        
+
+    def get(self):
+        value = self.cli.get(self.remote_addr)
+        if value is not None:
+            return json.loads(value)
+        return {}
+
+    def increment(self):
+        value = self.get()
+        value.update({self.user_name: "%s" % ( self.request_time)})
+        self.cli.set(self.remote_addr, json.dumps(value))
+
+    def reset(self):
+        value = self.get()
+        if self.user_name in value:
+            del value[self.user_name]
+        self.cli.set(self.remote_addr, json.dumps(value))
+
+    def check_logged_in(self):
+        cached = self.get().get(self.user_name, None)
+        if cached is not None:
+            return True
 
 class LoginThrottle(object):
     # Login throttling lock period - 15 min
