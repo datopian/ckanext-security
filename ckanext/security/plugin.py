@@ -7,7 +7,7 @@ from ckanext.security import schema
 
 class CkanSecurityPlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IConfigurer)
-    #plugins.implements(plugins.IRoutes)
+    plugins.implements(plugins.IRoutes)
 
     def update_config(self, config):
         # Monkeypatching all user schemas in order to enforce a stronger password
@@ -21,11 +21,7 @@ class CkanSecurityPlugin(plugins.SingletonPlugin):
 
     def before_map(self, urlmap):
         userController = 'ckanext.security.controllers:SecureUserController'
-        urlmap.redirect('/user/edit/', '/user/edit')
-        urlmap.connect('/user/edit', controller=userController, action='edit')
-        urlmap.connect('/user/edit/{id:.*}', controller=userController, action='edit', ckan_icon='cog')
-        urlmap.connect('/user/reset/{id:.*}', controller=userController, action='perform_reset')
-        urlmap.connect('/user/reset', controller=userController, action='request_reset')
+        urlmap.connect('/user/_logout', controller=userController, action='logout')
         return urlmap
 
     def after_map(self, urlmap):

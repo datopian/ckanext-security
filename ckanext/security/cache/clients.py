@@ -21,3 +21,6 @@ class RedisClient(object):
 
 class ThrottleClient(RedisClient):
     prefix = 'security_throttle_'
+
+class AuthUserClient(RedisClient):
+    prefix = 'auth_user_throttle_'

@@ -10,7 +10,8 @@ from webob.request import Request
 from zope.interface import implements
 
 from ckanext.security.cache.login import LoginThrottle
-
+from ckanext.security.cache.login import ConcurrentLoginThrottel
+from ckan.common import config
 
 log = logging.getLogger(__name__)
 
@@ -19,6 +20,9 @@ class CKANLoginThrottle(UsernamePasswordAuthenticator):
     implements(IAuthenticator)
 
     def authenticate(self, environ, identity):
+
+        site_url = str(config.get('ckan.site_id', 'default'))
+
         """A username/password authenticator that throttles login request by IP."""
         try:
             login = identity['login']
@@ -36,13 +40,26 @@ class CKANLoginThrottle(UsernamePasswordAuthenticator):
                 log.critical('X-Forwarded-For header/REMOTE_ADDR missing from request.')
                 return None
 
+        log.info("user")
+        log.info(User.by_name(login))
+
         throttle = LoginThrottle(User.by_name(login), remote_addr)
+  
         if not ('login' in identity and 'password' in identity):
             return None
-
+        
         # Run through the CKAN auth sequence first, so we can hit the DB
         # in every case and make timing attacks a little more difficult.
         auth_user = super(CKANLoginThrottle, self).authenticate(environ, identity)
+        
+        log.info('Auth user is %r .' % (auth_user))
+
+        auth_throttle = ConcurrentLoginThrottel(auth_user, site_url)
+
+        if auth_throttle.check_logged_in() is True:
+            log.info('User %r (%s) already logged_in.' % (login, remote_addr))
+            return None
+
 
         # Check if there is a lock on the requested user, and return None if
         # we have a lock.
@@ -56,6 +73,7 @@ class CKANLoginThrottle(UsernamePasswordAuthenticator):
         # return the user object.
         if auth_user is not None:
             throttle.reset()
+            auth_throttle.increment() 
             return auth_user
 
         # Increment the throttle counter if the login failed.

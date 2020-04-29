@@ -1,6 +1,6 @@
 from ckan import authz, model
 
-from ckan.common import _, c, request
+from ckan.common import _, c, request, config
 from ckan.controllers.user import UserController
 from ckan.lib.base import abort, render
 from ckan.lib import helpers
@@ -10,14 +10,42 @@ from ckan.logic import schema, NotAuthorized, check_access, get_action, NotFound
 from ckanext.security import mailer
 from ckanext.security.validators import old_username_validator
 
+import ckan.plugins as plugins
+import logging
+from ckanext.security.cache.login import ConcurrentLoginThrottel
+
+log = logging.getLogger(__name__)
+
+def _get_repoze_handler(handler_name):
+        u'''Returns the URL that repoze.who will respond to and perform a
+        login or logout.'''
+        return getattr(request.environ[u'repoze.who.plugins'][u'friendlyform'],
+                    handler_name)
 
 class SecureUserController(UserController):
     edit_user_form = 'security/edit_user_form.html'
+
+    
 
     def _edit_form_to_db_schema(self):
         form_schema = schema.user_edit_form_schema()
         form_schema['name'] += [old_username_validator]
         return form_schema
+
+    def logout(self):
+        site_url = str(config.get('ckan.site_id', 'default'))
+        log.info("Here is custom logout")
+        user = c.userobj.name
+        log.info('The user to logout is %r ' % (user))
+        auth_throttle = ConcurrentLoginThrottel(user, site_url)
+        auth_throttle.reset() 
+
+        # Do any plugin logout stuff
+        for item in plugins.PluginImplementations(plugins.IAuthenticator):
+            item.logout()
+        url = helpers.url_for(u'user.logged_out_page')
+        return helpers.redirect_to(_get_repoze_handler(u'logout_handler_path') + u'?came_from=' + url,
+            parse_url=True)
 
     def request_reset(self):
         # This is a one-to-one copy from ckan core, except for user errors
