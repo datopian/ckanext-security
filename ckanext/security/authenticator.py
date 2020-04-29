@@ -55,6 +55,7 @@ class CKANLoginThrottle(UsernamePasswordAuthenticator):
         log.info('Auth user is %r .' % (auth_user))
 
         auth_throttle = ConcurrentLoginThrottel(auth_user, site_url)
+        auth_throttle.reset() 
 
         if auth_throttle.check_logged_in() is True:
             log.info('User %r (%s) already logged_in.' % (login, remote_addr))
