@@ -5,11 +5,15 @@ class RedisClient(object):
     prefix = ''
 
     def __init__(self):
-        host = config.get('ckanext.security.redis.host', 'redis')
-        port = config.get('ckanext.security.redis.port', '6379')
-        db = config.get('ckanext.security.redis.db', '1')
-        redis_ps = config.get('ckanext.security.redis.ps', None)
-        self.client = redis.StrictRedis(host=host, port=port, db=db, password=redis_ps)
+        redis_url = config.get('ckanext.security.redis.url', None)
+        if redis_url:
+            self.client = redis.StrictRedis.from_url(redis_url)
+        else:
+            host = config.get('ckanext.security.redis.host', 'redis')
+            port = config.get('ckanext.security.redis.port', '6379')
+            db = config.get('ckanext.security.redis.db', '1')
+            self.client = redis.StrictRedis(host=host, port=port, db=db) 
+
 
     def get(self, key):
         return self.client.get(self.prefix + key)
