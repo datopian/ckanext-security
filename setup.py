@@ -21,7 +21,7 @@ setup(
         'repoze.who-use-beaker',
         'redis',
         'beakeredis',
-        'pyotp',
+        'pyotp==2.3.0',
         'python-magic'
     ],
     dependency_links=[
