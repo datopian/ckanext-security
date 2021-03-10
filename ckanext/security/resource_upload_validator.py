@@ -52,9 +52,12 @@ def _build_mimetypes_and_extensions(filename, file_content):
 
             # build set of possible extensions for the mimetype
             nonstandard_extensions = mimes_instance.types_map_inv[0].get(mimetype, [])
-            standard_extensions = mimes_instance.types_map_inv[1].get(mimetype, [])
             extensions_and_mimetypes.extend(nonstandard_extensions)
-            extensions_and_mimetypes.extend(standard_extensions)
+            # this is a hack to allow uploading of csv, json and txt files
+            # see https://github.com/data-govt-nz/ckanext-security/issues/42
+            if supplied_file_extension not in ['.csv', '.json', '.txt']:
+                standard_extensions = mimes_instance.types_map_inv[1].get(mimetype, [])
+                extensions_and_mimetypes.extend(standard_extensions)
 
     unique_set = set(extensions_and_mimetypes)
     unique_list = list(unique_set)
