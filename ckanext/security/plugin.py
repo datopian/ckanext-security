@@ -32,9 +32,7 @@ class CkanSecurityPlugin(plugins.SingletonPlugin):
 
     def before_map(self, urlmap):
         userController = 'ckanext.security.controllers:SecureUserController'
-        urlmap.redirect('/user/edit/', '/user/edit')
         urlmap.connect('/user/edit', controller=userController, action='edit')
-        urlmap.connect('/user/edit/{id:.*}', controller=userController, action='edit', ckan_icon='cog')
         urlmap.connect('/user/reset/{id:.*}', controller=userController, action='perform_reset')
         urlmap.connect('/user/reset', controller=userController, action='request_reset')
         return urlmap

@@ -25,7 +25,7 @@
     {% resource 'security/qrious.js' %}
     {% resource 'security/qrcode_renderer.js' %}
     <form id="mfa-form" method="POST">
-        <fieldset>
+      <fieldset style = "margin-bottom: 10px;">
             <legend>{{_('Scan this QR code with your two factor authentication app')}}</legend>
 
             <input id="totp-uri" type="hidden" disabled value="{{c.totp_challenger_uri}}"/>

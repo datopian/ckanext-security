@@ -189,7 +189,6 @@ class MFAUserController(tk.BaseController):
 mailer.send_reset_link = secure_mailer.send_reset_link
 original_password_reset = UserController.request_reset
 class SecureUserController(UserController):
-    edit_user_form = 'security/edit_user_form.html'
 
     def _edit_form_to_db_schema(self):
         form_schema = schema.user_edit_form_schema()
