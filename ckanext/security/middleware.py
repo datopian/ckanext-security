@@ -62,6 +62,7 @@ class Request(webob.Request):
         """
         # handle query string token if there are no POST parameters
         # this is needed for the 'confirm-action' JavaScript module
+        body_dict = self.body
         if not self.POST and len(self.GET.getall(anti_csrf.TOKEN_FIELD_NAME)) == 1:
             token = self.GET.getone(anti_csrf.TOKEN_FIELD_NAME)
             del self.GET[anti_csrf.TOKEN_FIELD_NAME]
@@ -72,6 +73,7 @@ class Request(webob.Request):
         token = post_tokens[0]
         # drop token from request so it doesn't populate resource extras
         del self.POST[anti_csrf.TOKEN_FIELD_NAME]
+        self.body = body_dict
         return token
 
     def get_cookie_token(self):
