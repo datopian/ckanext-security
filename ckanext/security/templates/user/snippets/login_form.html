@@ -9,7 +9,8 @@ overrides rendering of the login form
 {% set password_error = true if error_summary %}
 
 {% resource 'security/login_ajax.js' %}
-
+{% block sso_login %}
+{% endblock %}
 <form id="mfa-login-form" action="{{ action }}" method="post" class="form-horizontal">
   <div class="error-explanation alert alert-error" style="display: none;">
     <p id="invalid-entries">{{ _('The form contains invalid entries:') }}</p>
