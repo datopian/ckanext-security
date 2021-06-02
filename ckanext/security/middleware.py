@@ -72,8 +72,8 @@ class Request(webob.Request):
             return None
         token = post_tokens[0]
         # drop token from request so it doesn't populate resource extras
-        del self.POST[anti_csrf.TOKEN_FIELD_NAME]
         self.body = body_dict
+        del self.POST[anti_csrf.TOKEN_FIELD_NAME]
         return token
 
     def get_cookie_token(self):
